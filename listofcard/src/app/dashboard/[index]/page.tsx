@@ -1,9 +1,11 @@
 'use client'
 import React from 'react';
 import { useParams } from 'next/navigation';
-import job from '../../../../jobs.json';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from '@fortawesome/free-regular-svg-icons';
+import useFetchData from '@/app/fetchdata/fetchdata';
+import { useEffect } from 'react';
+import { useState } from 'react';
 import {
   faCalendarAlt,
   faFolderOpen,
@@ -14,18 +16,50 @@ import {
   faStopCircle
 } from "@fortawesome/free-solid-svg-icons";
 import Jobs from '../../component/jobs/jobs'
+import { Opportunity,newvalueOfspecific} from '@/app/component/type/type';
+
 
 
 const dashboard = () => {
   const params = useParams();
-  const indexValue = params.index ? parseInt(params.index as string, 10) : -1;
-  const currentJob = job.jobs[indexValue];
-  const ageCategory =
-    currentJob?.ideal_candidate?.age === '18-24'
-      ? 'Young (18-24 year old)'
-      : 'Any';
+  const indexValue = params.index ;
+  console.log(params.index);
+  const [jobs, setJobs] = useState<newvalueOfspecific>({
+      errors: "",
+    count:0,
+    data:null,
+    success: false,
+    message: "",
+    });
+  
+    // Fetch data
+    const {data, loading, error } = useFetchData(`https://akil-backend.onrender.com/opportunities/${String(params.index)}`)
+    console.log(data);
+    useEffect(() => {
+      if (data) {
+        setJobs((prevJobs) => ({
+          ...prevJobs,
+          ...data, // Merge the fetched data into the jobs state
+        }));
+      }
+    }, [data]);
+
+    
+      if (loading) {
+        return <div>Loading...</div> // Show loading state
+      }
+    
+      if (error) {
+        return <div>Error fetching data: {error}</div>
+    }
+    console.log(jobs.data);
+    
+
+
+  // here we will do the  the filter  functionality based on index.
 
   return (
+    <>
     <div className="flex gap-[62px] p-4">
       <div>
       <div className='p-4'>
@@ -33,13 +67,13 @@ const dashboard = () => {
        Description
       </h1>
       <p className='para'>
-        {job.jobs[indexValue].description}
+        {jobs.data?.description}
       </p>
       </div>
       <div className='p-4'>
         <h1 className='title'>responsibilities</h1>
       <p className='para'>
-      {job.jobs[indexValue].responsibilities.map((responsibilty,index)=>(
+      {jobs.data?.responsibilities.split('/[\n,]/').map((responsibilty,index)=>(
         <li key={index} className='list-none'>
           <FontAwesomeIcon icon={faCheckCircle} className="mr-2 text-green-500" />
           {responsibilty}
@@ -49,10 +83,10 @@ const dashboard = () => {
       </div>
       <div className='p-4'>
         <h1 className='title'>ideal candidate we want</h1>
-       <li className='para' key={indexValue}>
-        {`${ageCategory} ${job.jobs[indexValue].ideal_candidate.gender} ${job.jobs[indexValue].title}`}
+       <li className='para'>
+        {` ${jobs.data?.idealCandidate} ${jobs.data?.title}`}
        </li>
-       {job.jobs[indexValue].ideal_candidate.traits.map((traits,index)=>(
+       {jobs.data?.idealCandidate.split('/[\n,]/').map((traits,index)=>(
         <li key={index} className='para'>
           {traits}
         </li>
@@ -65,7 +99,7 @@ const dashboard = () => {
         </h1>
         <li className='list-none para font-black text-[#25324B] ' key={0}>
         <FontAwesomeIcon icon={faMapMarkerAlt} className="mr-2 text-green-500 rounded-b-full border-amber-100 p-2 text-lg" />
-        {currentJob.when_where}
+        {jobs.data?.whenAndWhere}
         </li>
       </div>
       </div>
@@ -84,7 +118,7 @@ const dashboard = () => {
     <FontAwesomeIcon icon={faCalendarAlt} className="mr-2 text-green-500" />
     <span className="icondescription">Posted On</span>
   </div>
-  <p className="detaildescription">{currentJob.about.posted_on}</p>
+  <p className="detaildescription">{jobs.data?.datePosted}</p>
 
   {/* Deadline */}
   <div className="flex items-center mb-2 text-gray-500 text-sm">
@@ -92,14 +126,19 @@ const dashboard = () => {
   <span className='icondescription'>deadline</span>
   </div>
 
-  <p className="detaildescription">{currentJob.about.deadline}</p>
+  <p className="detaildescription">{jobs.data?.deadline}</p>
 
   {/* Location */}
   <div className="flex items-center mb-2 text-gray-500 text-sm  mr-3">
     <FontAwesomeIcon icon={faMapMarkerAlt} className="mr-2 text-green-500 rounded-b-full border-amber-100 p-2" />
     <span className="icondescription">Location</span>
   </div>
-  <p className="detaildescription">{currentJob.about.location}</p>
+ {/* {jobs.data.location.map((location1,index)=>(
+     <p className="detaildescription">
+     {location1}
+      </p>
+
+  ))} */}
 
   {/* Start Date */}
   <div className="mt-4">
@@ -108,7 +147,7 @@ const dashboard = () => {
       <span className="icondescription">Start Date</span>
       </div>
     
-    <p className="detaildescription">{currentJob.about.start_date}</p>
+    <p className="detaildescription">{jobs.data?.startDate}</p>
 
     {/* End Date (Green Background) */}
     <div className="flex items-center mb-2">
@@ -117,25 +156,19 @@ const dashboard = () => {
       </div>
       <span className="icondescription">end date</span>
     </div>
-    <p className="detaildescription">{currentJob.about.end_date}</p>
+    <p className="detaildescription">{jobs.data?.endDate}</p>
   </div>
 </div>
 
   {/* Categories Section */}
   <div className="bg-white rounded-md shadow-sm p-5">
     <h2 className="title">Categories</h2>
-    {currentJob.about.categories.map((category, index) => (
-      // <div 
-      //   key={index}
-      //   className="flex justify-between bg-yellow-100 text-yellow-700 rounded-full px-3 py-1 text-sm mr-2 mb-2"
-      // >
-      //   <FontAwesomeIcon icon={faTag} className="mr-2 text-yellow-500" />
-      //   <span>{category}</span>
-      // </div>
-    index==0 ? <button className='text-[#FFB836] w-24 border-3 rounded-[80px] border-[#FFB836] p-2 m-2 bg-[#EB85331A]'>
+    {jobs.data?.categories.map((category, index) => (
+    
+    index==0 ? <button className='text-[#FFB836] border-3 rounded-[80px] border-[#FFB836] p-2 m-2 bg-[#EB85331A]'>
       {category}
       </button>
-       : <button className='text-teal-500 w-24 rounded-[80px] border-3 border-teal-100 p-2 bg-teal-100'>
+       : <button className='text-teal-500  rounded-[80px] border-3 border-teal-100 p-2 bg-teal-100'>
       {category}
     </button>
   
@@ -146,7 +179,7 @@ const dashboard = () => {
   <div className="bg-white rounded-md shadow-sm p-5">
     <h2 className="title">Required Skills</h2>
   
-      {currentJob.about.required_skills ?.map((skill, index) => (
+      {jobs.data?.requiredSkills.map((skill, index) => (
         // <li key={index} className="flex items-center text-sm mb-2">
         //   <FontAwesomeIcon icon={faCheckCircle} className="mr-2 text-green-500" />
         //   <span>{skill}</span>
@@ -158,8 +191,8 @@ const dashboard = () => {
   
   </div>
 </div>
-
-      </div>
+</div>
+</>
   );
 };
 
