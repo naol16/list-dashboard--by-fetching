@@ -18,23 +18,7 @@ This project is a Next.js application that implements a dashboard for displaying
 ![Screenshot (59)](https://github.com/user-attachments/assets/97a1965d-bf14-41ac-92b2-5782cfa0ceaf)
 file structure
 c:\Users\NEZHAB\Desktop\Next js fetching with next js\
-├── list-dashboard--by-fetching
-│   ├── listofcard
-│   │   ├── src
-│   │   │   ├── app
-│   │   │   │   ├── dashboard
-│   │   │   │   │   ├── [index]
-│   │   │   │   │   │   └── page.tsx        # Main dashboard page
-│   │   │   │   ├── component
-│   │   │   │   │   ├── jobs
-│   │   │   │   │   │   └── jobs.tsx       # Reusable job component
-│   │   │   │   │   ├── type
-│   │   │   │   │   │   └── type.tsx       # TypeScript interfaces for data models
-│   │   │   │   ├── fetchdata
-│   │   │   │   │   └── fetchdata.tsx      # Custom hook for fetching data
-│   │   │   ├── styles                     # Global styles (if applicable)
-│   │   │   ├── public                     # Static assets (if applicable)
-│   │   │   └── README.md                  # Project documentation
+
 ### File Structure
 
 ```plaintext
